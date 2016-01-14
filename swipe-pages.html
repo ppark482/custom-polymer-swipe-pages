@@ -75,6 +75,9 @@ which is impossible given that the size of the `swipe-pages` element is well-def
 
       :host{
         overflow: hidden;
+        -ms-flex: 1;
+        -webkit-flex: 1;
+        flex: 1;
       }
 
       .pagesContainer{
@@ -99,6 +102,7 @@ which is impossible given that the size of the `swipe-pages` element is well-def
   (function(){
     'use strict';
 
+    var element;
     var isWebkit = document.body.style.webkitTransform !== undefined;
 
     var getPositionArray = function(length){
@@ -150,6 +154,24 @@ which is impossible given that the size of the `swipe-pages` element is well-def
         element.$.pageContainer.scrollTop = 0;
       }
     };
+
+    function debounce(func, wait, immediate) {
+      var timeout;
+      return function() {
+        var context = this, args = arguments;
+        var later = function() {
+          timeout = null;
+          if (!immediate) func.apply(context, args);
+        };
+        var callNow = immediate && !timeout;
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+        if (callNow) func.apply(context, args);
+      };
+    }
+
+    var checkAndSetHeights = {};
+    var setResizeListener;
 
     Polymer({
       is: 'swipe-pages',
@@ -252,15 +274,36 @@ which is impossible given that the size of the `swipe-pages` element is well-def
 
       },
 
-      ready: function(){
+      setHeightFunction : function () {
+        var self = this;
+        // export function to outside of polymer element
+        // with references to 'this'
+        checkAndSetHeights = {
+          run : debounce(function () {
+            var container = document.getElementById('pagesContainer');
+            container.style.height = self.clientHeight.toString() + 'px';
+          }, 250)
+        } 
+      },
+
+      ready: function() {
+        // on element ready set up references to polymer element
+        this.setHeightFunction();
+
         this.resetPositions();
         this.resetWidths();
+
+        window.onload = checkAndSetHeights.run();
+        setResizeListener();
       }
 
     });
+    
+    setResizeListener = function () {
+      window.addEventListener('resize', checkAndSetHeights.run);
+    }
 
   })();
-
 
   </script>
 
