@@ -293,7 +293,7 @@ which is impossible given that the size of the `swipe-pages` element is well-def
         this.resetPositions();
         this.resetWidths();
 
-        window.onload = checkAndSetHeights.run();
+        window.addEventListener('WebComponentsReady', checkAndSetHeights.run);
         setResizeListener();
       }
 
