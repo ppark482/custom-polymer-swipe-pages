@@ -233,12 +233,7 @@ which is impossible given that the size of the `swipe-pages` element is well-def
         }
       },
       selectedChanged : function(newValue, oldValue){
-        if (newValue >= this.pageCount || newValue < 0){
-          var errorMessage = "Page " + newValue.toString() + " is not a defined page. There are only " + this.pageCount.toString() + " pages.";
-          throw errorMessage;
-        }
         moveToPage(newValue, this);
-
         var self = this;
         window.setTimeout(function(){
           resetScrollTop(self.pages[oldValue]);
