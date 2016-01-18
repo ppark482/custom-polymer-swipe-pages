@@ -1,23 +1,4 @@
 <!--
-Copyright (c) 2014 Hassan Hayat <hassan.hayat7@gmail.com>
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
--->
-
-<!--
 Provides horizontally swipeable pages.
 The `swipe-pages` element must have `swipe-page` elements as its children.
 This ensures readibility of code and a given amount of control on the behavior
@@ -58,9 +39,8 @@ which is impossible given that the size of the `swipe-pages` element is well-def
 @status alpha
 -->
 
-
-
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="swipe-page.html">
 
 <dom-module id="swipe-pages">
@@ -81,6 +61,7 @@ which is impossible given that the size of the `swipe-pages` element is well-def
       }
 
       .pagesContainer{
+        height: inherit;
         overflow-x : hidden;
         overflow-y: hidden;
         background-color: rgba(255,255,255,0);
@@ -102,7 +83,6 @@ which is impossible given that the size of the `swipe-pages` element is well-def
   (function(){
     'use strict';
 
-    var element;
     var isWebkit = document.body.style.webkitTransform !== undefined;
 
     var getPositionArray = function(length){
@@ -155,24 +135,6 @@ which is impossible given that the size of the `swipe-pages` element is well-def
       }
     };
 
-    function debounce(func, wait, immediate) {
-      var timeout;
-      return function() {
-        var context = this, args = arguments;
-        var later = function() {
-          timeout = null;
-          if (!immediate) func.apply(context, args);
-        };
-        var callNow = immediate && !timeout;
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-        if (callNow) func.apply(context, args);
-      };
-    }
-
-    var checkAndSetHeights = {};
-    var setResizeListener;
-
     Polymer({
       is: 'swipe-pages',
       properties: {
@@ -186,8 +148,12 @@ which is impossible given that the size of the `swipe-pages` element is well-def
         }
       },
       listeners: {
+        'iron-resize': '_onIronResize',
         'track': 'trackHandler'
       },
+      behaviors: [
+        Polymer.IronResizableBehavior
+      ],
       hostAttributes: {
         threshold: 0.3,
         transitionDuration: 0.3,
@@ -197,10 +163,18 @@ which is impossible given that the size of the `swipe-pages` element is well-def
         return Polymer.dom(this.$.pages).getDistributedNodes().length;
       },
       get pages(){
-        return Polymer.dom(this.$.pages).getDistributedNodes();;
+        return Polymer.dom(this.$.pages).getDistributedNodes();
       },
       get pageWidth(){
         return this.getBoundingClientRect().width;
+      },
+      attached: function() {
+        this.async(this.notifyResize, 1);
+      },
+      _onIronResize: function() {
+        if(this.clientHeight && this.clientHeight !== 0) {
+          this.$.pagesContainer.style.height = this.clientHeight + "px";
+        }
       },
       resetPositions : function(){
         var positionArray = getPositionArray(this.pageCount);
@@ -214,7 +188,6 @@ which is impossible given that the size of the `swipe-pages` element is well-def
           this.pages[i].style.width = "" + (100 / this.pageCount) + "%";
         }
       },
-
       trackHandler: function(event) {
         switch (event.detail.state) {
           case 'start':
@@ -237,7 +210,7 @@ which is impossible given that the size of the `swipe-pages` element is well-def
               var position = -(this.selected - (event.detail.dx / this.pageWidth)) * 100 / this.pageCount;
               moveToPosition(position, this);
             }
-            break
+            break;
 
           case 'end':
             var userIsSwipingLeftwards = (event.detail.dx < 0);
@@ -256,10 +229,9 @@ which is impossible given that the size of the `swipe-pages` element is well-def
             }else{
               moveToPage(this.selected, this);
             }
-            break
+            break;
         }
       },
-
       selectedChanged : function(newValue, oldValue){
         if (newValue >= this.pageCount || newValue < 0){
           var errorMessage = "Page " + newValue.toString() + " is not a defined page. There are only " + this.pageCount.toString() + " pages.";
@@ -273,35 +245,12 @@ which is impossible given that the size of the `swipe-pages` element is well-def
         }, self.transitionDuration * 1000);
 
       },
-
-      setHeightFunction : function () {
-        var self = this;
-        // export function to outside of polymer element
-        // with references to 'this'
-        checkAndSetHeights = {
-          run : debounce(function () {
-            var container = document.getElementById('pagesContainer');
-            container.style.height = self.clientHeight.toString() + 'px';
-          }, 250)
-        } 
-      },
-
       ready: function() {
-        // on element ready set up references to polymer element
-        this.setHeightFunction();
-
         this.resetPositions();
         this.resetWidths();
-
-        window.addEventListener('WebComponentsReady', checkAndSetHeights.run);
-        setResizeListener();
       }
 
     });
-    
-    setResizeListener = function () {
-      window.addEventListener('resize', checkAndSetHeights.run);
-    }
 
   })();
 
