@@ -41,6 +41,8 @@ which is impossible given that the size of the `swipe-pages` element is well-def
 
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
 <link rel="import" href="swipe-page.html">
 
 <dom-module id="swipe-pages">
@@ -71,7 +73,20 @@ which is impossible given that the size of the `swipe-pages` element is well-def
       content[select="swipe-page"]::content *{
         position: relative;
       }
+
+      #swipeArrows {
+        position: absolute;
+      }
+      #previousPage, #nextPage {
+        cursor: pointer;
+        z-index: 9999;
+      }
     </style>
+
+    <div id="swipeArrows">
+      <iron-icon icon="icons:chevron-left" id="previousPage" on-click="previousPage"></iron-icon>
+      <iron-icon icon="icons:chevron-right" id="nextPage" on-click="nextPage"></iron-icon>
+    </div>
 
     <div id="pagesContainer" class="pagesContainer">
       <content id="pages" select="swipe-page"></content>
@@ -173,7 +188,25 @@ which is impossible given that the size of the `swipe-pages` element is well-def
       },
       _onIronResize: function() {
         if(this.clientHeight && this.clientHeight !== 0) {
-          this.$.pagesContainer.style.height = this.clientHeight + "px";
+          this.$.pagesContainer.style.height = this.clientHeight + 'px';
+        }
+      },
+      nextPage : function () {
+        var self = this;
+        var isLastPage  = (self.selected === (self.pageCount - 1));
+        if (isLastPage) {
+          return;
+        } else {
+          this.selectedChanged((this.selected += 1), this.selected);
+        }
+      },
+      previousPage : function () {
+        var self = this;
+        var isFirstPage = (self.selected === 0);
+        if (isFirstPage) {
+          return;
+        } else {
+          this.selectedChanged((this.selected -= 1), this.selected);
         }
       },
       resetPositions : function(){
@@ -189,14 +222,15 @@ which is impossible given that the size of the `swipe-pages` element is well-def
         }
       },
       trackHandler: function(event) {
+        var self = this;
         switch (event.detail.state) {
           case 'start':
-            resetAnimations(this);
+            resetAnimations(self);
             break;
 
           case 'track':
-            var isFirstPage = (this.selected === 0);
-            var isLastPage  = (this.selected === (this.pageCount - 1));
+            var isFirstPage = (self.selected === 0);
+            var isLastPage  = (self.selected === (self.pageCount - 1));
 
             var userIsSwipingLeftwards = (event.detail.dx < 0);
             var userIsSwipingRightwards = (event.detail.dx > 0);
@@ -207,8 +241,8 @@ which is impossible given that the size of the `swipe-pages` element is well-def
             var tryingToSwipeToOutOfBoundsPage = tryingToSwipeToLeftOfFirstPage || tryingToSwipeToRightOfLastPage;
 
             if (!tryingToSwipeToOutOfBoundsPage){
-              var position = -(this.selected - (event.detail.dx / this.pageWidth)) * 100 / this.pageCount;
-              moveToPosition(position, this);
+              var position = -(self.selected - (event.detail.dx / self.pageWidth)) * 100 / self.pageCount;
+              moveToPosition(position, self);
             }
             break;
 
@@ -216,18 +250,18 @@ which is impossible given that the size of the `swipe-pages` element is well-def
             var userIsSwipingLeftwards = (event.detail.dx < 0);
             var userIsSwipingRightwards = (event.detail.dx > 0);
 
-            var thresholdWasCrossed = (Math.abs(event.detail.dx) / this.pageWidth) > this.threshold;
-            setAnimationDuration(this.getAttribute('transitionDuration'), this);
+            var thresholdWasCrossed = (Math.abs(event.detail.dx) / self.pageWidth) > self.threshold;
+            setAnimationDuration(self.getAttribute('transitionDuration'), self);
 
             if (thresholdWasCrossed){
               if (userIsSwipingRightwards){
-                this.selected = Math.max(this.selected - 1, 0);
+                self.selected = Math.max(self.selected - 1, 0);
               }
               if (userIsSwipingLeftwards){
-                this.selected = Math.min(this.selected + 1, this.pageCount - 1);
+                self.selected = Math.min(self.selected + 1, self.pageCount - 1);
               }
-            }else{
-              moveToPage(this.selected, this);
+            } else {
+              moveToPage(self.selected, self);
             }
             break;
         }
