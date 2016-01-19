@@ -126,8 +126,8 @@ which is impossible given that the size of the `swipe-pages` element is well-def
     };
 
     var setAnimationDuration = function (duration, element, easingFunction){
-      easingFunction = easingFunction || "ease-out";
-      var transition = (isWebkit ? "-webkit-" : "") + "transform " + duration.toString() + "s " + easingFunction;
+      easingFunction = easingFunction || 'ease-out';
+      var transition = (isWebkit ? '-webkit-' : '') + 'transform ' + duration.toString() + 's ' + easingFunction;
       setTransition(transition, element);
     };
 
@@ -148,7 +148,7 @@ which is impossible given that the size of the `swipe-pages` element is well-def
     };
 
     var moveToPosition = function (position, element){
-      var transform = "translateX(" + position.toString() + "%)";
+      var transform = 'translateX(' + position.toString() + '%)';
       setTransform(transform, element);
     };
 
@@ -227,13 +227,13 @@ which is impossible given that the size of the `swipe-pages` element is well-def
       resetPositions : function(){
         var positionArray = getPositionArray(this.pageCount);
         for (var i = 0; i < this.pageCount; i++){
-          this.pages[i].style.left = ""  + (positionArray[i] / this.pageCount) + "%";
+          this.pages[i].style.left = ''  + (positionArray[i] / this.pageCount) + '%';
         }
       },
       resetWidths : function(){
-        this.$.pagesContainer.style.width = "" + (100 * this.pageCount) + "%";
+        this.$.pagesContainer.style.width = '' + (100 * this.pageCount) + '%';
         for (var i = 0; i < this.pageCount; i++){
-          this.pages[i].style.width = "" + (100 / this.pageCount) + "%";
+          this.pages[i].style.width = '' + (100 / this.pageCount) + '%';
         }
       },
       setArrowVisibility : function () {
