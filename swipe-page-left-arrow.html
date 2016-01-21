@@ -5,6 +5,9 @@
 <dom-module name="swipe-page-left-arrow">
   <template>
     <style>
+      :host {
+        @apply(--swipe-page-left-arrow);
+      }
     </style>
       <template is="dom-if" if="{{previousPage}}">
         <iron-icon icon="fa:chevron-left" id="previousPage" on-click="goToPrevious"></iron-icon>
@@ -18,8 +21,9 @@
         properties: {
           previousPage: {
             type: Boolean,
-            value: true,
-            notify: true
+            value: false,
+            notify: true,
+            reflectToAttribute: true
           }
         },
         goToPrevious : function () {

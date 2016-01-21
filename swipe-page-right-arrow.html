@@ -5,6 +5,9 @@
 <dom-module name="swipe-page-right-arrow">
   <template>
     <style>
+      :host {
+        @apply(--swipe-page-right-arrow);
+      }
     </style>
       <template is="dom-if" if="{{nextPage}}">
         <iron-icon icon="fa:chevron-right" id="nextPage" on-click="goToNext"></iron-icon>
@@ -18,8 +21,9 @@
         properties: {
           nextPage: {
             type: Boolean,
-            value: true,
-            notify: true
+            value: false,
+            notify: true,
+            reflectToAttribute: true
           }
         },
         goToNext : function (e) {

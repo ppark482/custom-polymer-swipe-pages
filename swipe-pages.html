@@ -141,11 +141,33 @@ which is impossible given that the size of the `swipe-pages` element is well-def
               })
             });
           }
+          this.checkArrows();
         }, 1);
       },
       _onIronResize: function() {
         if(this.clientHeight && this.clientHeight !== 0) {
           this.$.pagesContainer.style.height = this.clientHeight + "px";
+        }
+      },
+      checkArrows : function () {
+        var pageCount = this.currentCount - 1;
+        var currentPage = this.selected;
+        var pages = this.currentPages;
+        if (pages && pages.length && pages !== 'undefined') {
+          var rightArrow = Polymer.dom(pages[currentPage]).querySelector('swipe-page-right-arrow');
+          var leftArrow = Polymer.dom(pages[currentPage]).querySelector('swipe-page-left-arrow');
+          if ( rightArrow || leftArrow ) {
+            if (currentPage === 0) {
+                leftArrow.previousPage = false;
+            } else {
+                leftArrow.previousPage = true;
+            }
+            if (currentPage === pageCount) {
+                rightArrow.nextPage = false;
+            } else {
+                rightArrow.nextPage = true;
+            }
+          }
         }
       },
       getPages: function() {
@@ -171,13 +193,11 @@ which is impossible given that the size of the `swipe-pages` element is well-def
         if (this.selected !== (this.currentCount - 1)) {
           this.selectedChanged((this.selected += 1), this.selected);
         }
-        app.checkPages(this);
       },
       previousPage : function () {
         if (this.selected !== 0) {
           this.selectedChanged((this.selected -= 1), this.selected);
         }
-        app.checkPages(this);
       },
       trackHandler: function(event) {
         switch (event.detail.state) {
@@ -233,7 +253,8 @@ which is impossible given that the size of the `swipe-pages` element is well-def
           }, self.transitionDuration * 1000);
         }
 
-        this.fire('swipePagesChanged');
+        this.checkArrows();
+
       },
       resetScrollTop: function(){
         if (this && this.currentPages.length > 0) {
