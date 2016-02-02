@@ -119,28 +119,16 @@ which is impossible given that the size of the `swipe-pages` element is well-def
         transitionDuration: 0.3,
         selected: 0
       },
+      attached: function() {
+        this.addEventListener('swipe-page-right-arrow-fire', this.nextPage);
+        this.addEventListener('swipe-page-left-arrow-fire', this.previousPage);
+      },
       load: function() {
-        var self = this;
-
         this.async(function() {
           this.getPages();
           this.resetPositions();
           this.resetWidths();
           this.notifyResize();
-          if (Polymer.dom(this).querySelector('swipe-page-right-arrow')) {
-            Polymer.dom(this).querySelectorAll('swipe-page-right-arrow').forEach( function (x) {
-              x.addEventListener('swipe-page-right-arrow-fire', function () {
-                self.nextPage();
-              })
-            });
-          }
-          if (Polymer.dom(this).querySelector('swipe-page-left-arrow')) {
-            Polymer.dom(this).querySelectorAll('swipe-page-left-arrow').forEach( function (x) {
-              x.addEventListener('swipe-page-left-arrow-fire', function () {
-                self.previousPage();
-              })
-            });
-          }
           this.checkArrows();
         }, 1);
       },
