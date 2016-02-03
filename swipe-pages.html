@@ -188,6 +188,7 @@ which is impossible given that the size of the `swipe-pages` element is well-def
         }
       },
       trackHandler: function(event) {
+        this.setScrollDirection('y', this);
         switch (event.detail.state) {
           case 'start':
             this.resetAnimations(this);
