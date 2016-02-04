@@ -65,7 +65,13 @@ which is impossible given that the size of the `swipe-pages` element is well-def
         overflow-x : hidden;
         overflow-y: hidden;
         background-color: rgba(255,255,255,0);
-        transform: translateZ(0);
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+        transform: translate3d(0, 0, 0);
+        -webkit-transform: translate3d(0, 0, 0);
+        -moz-transform: translate3d(0, 0, 0);
+        -o-transform: translate3d(0, 0, 0);
+        -ms-transform: translate3d(0, 0, 0);
       }
 
       content[select="swipe-page"]::content *{
@@ -258,7 +264,7 @@ which is impossible given that the size of the `swipe-pages` element is well-def
         this.moveToPosition(position);
       },
       moveToPosition: function(position){
-        var transform = "translateX(" + position.toString() + "%)";
+        var transform = "translate3d(" + position.toString() + "%, 0, 0)";
         this.setTransform(transform);
       },
       getPositionArray: function(length){

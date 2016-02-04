@@ -28,7 +28,12 @@
       /*This is for a bug in chrome where pages flash white. Why? I dunno.
         But, these two lines solve the problem... so... DO NOT TOUCH THIS!*/
       backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
       transform: scale(1);
+      -webkit-transform: scale(1);
+      -moz-transform: scale(1);
+      -o-transform: scale(1);
+      -ms-transform: scale(1);
     }
     </style>
     <content id="pageContainer" class="pageContainer">
