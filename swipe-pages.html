@@ -239,6 +239,7 @@ which is impossible given that the size of the `swipe-pages` element is well-def
         }
       },
       selectedChanged: function(newValue, oldValue){
+        this.fire('pageChange');
         this.moveToPage(newValue);
         var self = this;
 
