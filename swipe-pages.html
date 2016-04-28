@@ -67,11 +67,16 @@ which is impossible given that the size of the `swipe-pages` element is well-def
         background-color: rgba(255,255,255,0);
         backface-visibility: hidden;
         -webkit-backface-visibility: hidden;
-        transform: translate3d(0, 0, 0);
+/*        transform: translate3d(0, 0, 0);
         -webkit-transform: translate3d(0, 0, 0);
         -moz-transform: translate3d(0, 0, 0);
         -o-transform: translate3d(0, 0, 0);
-        -ms-transform: translate3d(0, 0, 0);
+        -ms-transform: translate3d(0, 0, 0);*/
+        transform: translateX(0);
+        -webkit-transition-duration: 500ms;
+        -moz-transition-duration: 500ms;
+        -o-transition-duration: 500ms;
+        transition-duration: 500ms;
       }
 
       content[select="swipe-page"]::content *{
@@ -174,7 +179,7 @@ which is impossible given that the size of the `swipe-pages` element is well-def
       resetPositions: function(){
         var positionArray = this.getPositionArray(this.currentCount);
         for (var i = 0; i < this.currentCount; i++){
-          this.currentPages[i].style.left = ""  + (positionArray[i] / this.currentCount) + "%";
+          this.currentPages[i].style.left = ''  + (positionArray[i] / this.currentCount) + '%';
         }
       },
       resetWidths: function(){
@@ -261,11 +266,11 @@ which is impossible given that the size of the `swipe-pages` element is well-def
         }
       },
       moveToPage: function(pageNumber){
-        var position = -pageNumber * 100 / this.currentCount;
+        var position = (-pageNumber * this.pageWidth());
         this.moveToPosition(position);
       },
       moveToPosition: function(position){
-        var transform = "translate3d(" + position.toString() + "%, 0, 0)";
+        var transform = 'translateX(' + position.toString() + 'px)';
         this.setTransform(transform);
       },
       getPositionArray: function(length){
@@ -276,11 +281,11 @@ which is impossible given that the size of the `swipe-pages` element is well-def
         return a;
       },
       resetAnimations: function(){
-        this.setTransition("", this);
+        this.setTransition('', this);
       },
       setAnimationDuration: function(duration, element, easingFunction){
-        easingFunction = easingFunction || "ease-out";
-        var transition = (isWebkit ? "-webkit-" : "") + "transform " + duration.toString() + "s " + easingFunction;
+        easingFunction = easingFunction || 'ease-out';
+        var transition = (isWebkit ? '-webkit-' : '') + 'transform ' + duration.toString() + 's ' + easingFunction;
         this.setTransition(transition);
       },
       setTransition: function(transition){
@@ -293,7 +298,7 @@ which is impossible given that the size of the `swipe-pages` element is well-def
       setTransform: function(transform){
         if (isWebkit){
           this.$.pagesContainer.style.webkitTransform = transform;
-        }else{
+        } else {
           this.$.pagesContainer.style.transform = transform;
         }
       }
