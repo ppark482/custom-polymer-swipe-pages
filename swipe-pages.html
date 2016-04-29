@@ -219,7 +219,7 @@ which is impossible given that the size of the `swipe-pages` element is well-def
 
             if (!tryingToSwipeToOutOfBoundsPage){
               var position = -(this.selected - (event.detail.dx / this.pageWidth())) * 100 / this.currentCount;
-              this.moveToPosition(position, this);
+              // this.moveToPosition(position, this);
             }
             break;
 
@@ -237,7 +237,7 @@ which is impossible given that the size of the `swipe-pages` element is well-def
               if (userIsSwipingLeftwards){
                 this.selected = Math.min(this.selected + 1, this.currentCount - 1);
               }
-            }else{
+            } else {
               this.moveToPage(this.selected, this);
             }
             break;
