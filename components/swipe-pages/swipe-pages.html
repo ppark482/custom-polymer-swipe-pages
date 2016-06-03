@@ -1,0 +1,311 @@
+<!--
+Provides horizontally swipeable pages.
+The `swipe-pages` element must have `swipe-page` elements as its children.
+This ensures readibility of code and a given amount of control on the behavior
+of individual pages.
+A `swipe-pages` element is an element containing several `swipe-page` elements
+as subviews. The `swipe-pages` element is given a certain width and height
+through CSS and then each individual `swipe-page` will automatically take of the full size
+of the parent element. This means that the `swipe-page` elements are assumed
+to all have the exact same size which they all derive from the `swipe-pages`
+element.
+###Example:
+    <swipe-pages selected = "1">
+      <swipe-page>Hey I'm page 0</swipe-page>
+      <swipe-page><h1>Hi, I'm on page 1</h1></swipe-page>
+      <swipe-page><p>I am page 2 and I totally rock!</p></swipe-page>
+    </swipe-pages>
+Swiping left moves to the next page while swiping right moves to the previous page.
+This behavior is very typical on mobile applications.
+The key to this element is that when swiping, the page follows your finger
+horizontally so as to give the user immediate feedback that he/she is swiping
+between pages.
+Pages only transition when the swipe gesture has crossed a certain threshold
+which is exposed by the `threshold` attribute.
+###Example:
+    <swipe-pages threshold = "0.5">
+      <swipe-page> ... </swipe-page>
+      <swipe-page> ... </swipe-page>
+    </swipe-pages>
+By setting the `threshold` to 0.5, you ensure that the page will only transition
+if the swipe gesture has crossed half the `swipe-pages` width horizontally.
+`threshold` accepts values between 0 and 1.
+A `threshold` value of 0 implies that any swipe gesture will cause a page
+transition. A `threshold` value of 1 implies that no page transition is possible
+as you must cross more that the entire size of the `swipe-pages` element horizontally
+which is impossible given that the size of the `swipe-pages` element is well-defined.
+@class swipe-pages
+@blurb Provides horizontally swipeable pages.
+@status alpha
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="swipe-page.html">
+
+<dom-module id="swipe-pages">
+
+  <template>
+    <style is="custom-style">
+      :host, .pagesContainer {
+        display: block;
+        height: 100%;
+        width: 100%;
+      }
+
+      :host{
+        overflow: hidden;
+        -ms-flex: 1;
+        -webkit-flex: 1;
+        flex: 1;
+      }
+
+      .pagesContainer{
+        height: inherit;
+        overflow-x : hidden;
+        overflow-y: hidden;
+        background-color: rgba(255,255,255,0);
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+/*        transform: translate3d(0, 0, 0);
+        -webkit-transform: translate3d(0, 0, 0);
+        -moz-transform: translate3d(0, 0, 0);
+        -o-transform: translate3d(0, 0, 0);
+        -ms-transform: translate3d(0, 0, 0);*/
+        transform: translateX(0);
+        -webkit-transition-duration: 500ms;
+        -moz-transition-duration: 500ms;
+        -o-transition-duration: 500ms;
+        transition-duration: 500ms;
+      }
+
+      content[select="swipe-page"]::content *{
+        position: relative;
+      }
+    </style>
+
+    <div id="pagesContainer" class="pagesContainer">
+      <content select="swipe-page"></content>
+    </div>
+
+  </template>
+
+  <script>
+  (function(){
+    'use strict';
+
+    var isWebkit = document.body.style.webkitTransform !== undefined;
+
+    Polymer({
+      is: 'swipe-pages',
+      properties: {
+        threshold: Number,
+        transitionDuration: Number,
+        selected: {
+          type: Number,
+          value: 0,
+          notify: true,
+          observer: 'selectedChanged'
+        },
+        currentCount: {
+          type: Number,
+          value: 0,
+          notify: true
+        },
+        currentPages: {
+          type: Array,
+          value: [],
+          notify: true
+        }
+      },
+      listeners: {
+        'iron-resize': '_onIronResize',
+        'track': 'trackHandler'
+      },
+      behaviors: [
+        Polymer.IronResizableBehavior
+      ],
+      hostAttributes: {
+        threshold: 0.3,
+        transitionDuration: 0.3,
+        selected: 0
+      },
+      attached: function() {
+        this.addEventListener('swipe-page-right-arrow-fire', this.nextPage);
+        this.addEventListener('swipe-page-left-arrow-fire', this.previousPage);
+      },
+      load: function() {
+        this.async(function() {
+          this.getPages();
+          this.resetPositions();
+          this.resetWidths();
+          this.notifyResize();
+          this.checkArrows();
+        }, 1);
+      },
+      _onIronResize: function() {
+        if(this.clientHeight && this.clientHeight !== 0) {
+          this.$.pagesContainer.style.height = this.clientHeight + "px";
+        }
+      },
+      checkArrows : function () {
+        var pageCount = this.currentCount - 1;
+        var currentPage = this.selected;
+        var pages = this.currentPages;
+        if (pages && pages.length && pages !== 'undefined') {
+          var rightArrow = Polymer.dom(pages[currentPage]).querySelector('swipe-page-right-arrow');
+          var leftArrow = Polymer.dom(pages[currentPage]).querySelector('swipe-page-left-arrow');
+          if ( rightArrow || leftArrow ) {
+            if (currentPage === 0) {
+                leftArrow.previousPage = false;
+            } else {
+                leftArrow.previousPage = true;
+            }
+            if (currentPage === pageCount) {
+                rightArrow.nextPage = false;
+            } else {
+                rightArrow.nextPage = true;
+            }
+          }
+        }
+      },
+      getPages: function() {
+        this.currentCount = Polymer.dom(this).querySelectorAll('swipe-page').length;
+        this.currentPages = Polymer.dom(this).querySelectorAll('swipe-page');
+      },
+      pageWidth: function() {
+        return this.getBoundingClientRect().width;
+      },
+      resetPositions: function(){
+        var positionArray = this.getPositionArray(this.currentCount);
+        for (var i = 0; i < this.currentCount; i++){
+          this.currentPages[i].style.left = ''  + (positionArray[i] / this.currentCount) + '%';
+        }
+      },
+      resetWidths: function(){
+        this.$.pagesContainer.style.width = "" + (100 * this.currentCount) + "%";
+        for (var i = 0; i < this.currentCount; i++){
+          this.currentPages[i].style.width = "" + (100 / this.currentCount) + "%";
+        }
+      },
+      nextPage : function () {
+        if (this.selected !== (this.currentCount - 1)) {
+          this.selectedChanged((this.selected += 1), this.selected);
+        }
+      },
+      previousPage : function () {
+        if (this.selected !== 0) {
+          this.selectedChanged((this.selected -= 1), this.selected);
+        }
+      },
+      trackHandler: function(event) {
+        this.setScrollDirection('y', this);
+        switch (event.detail.state) {
+          case 'start':
+            this.resetAnimations(this);
+            break;
+
+          case 'track':
+            var isFirstPage = (this.selected === 0);
+            var isLastPage  = (this.selected === (this.currentCount - 1));
+
+            var userIsSwipingLeftwards = (event.detail.dx < 0);
+            var userIsSwipingRightwards = (event.detail.dx > 0);
+
+            var tryingToSwipeToLeftOfFirstPage = userIsSwipingRightwards && isFirstPage;
+            var tryingToSwipeToRightOfLastPage = userIsSwipingLeftwards && isLastPage;
+
+            var tryingToSwipeToOutOfBoundsPage = tryingToSwipeToLeftOfFirstPage || tryingToSwipeToRightOfLastPage;
+
+            if (!tryingToSwipeToOutOfBoundsPage){
+              var position = -(this.selected - (event.detail.dx / this.pageWidth())) * 100 / this.currentCount;
+              // this.moveToPosition(position, this);
+            }
+            break;
+
+          case 'end':
+            var userIsSwipingLeftwards = (event.detail.dx < 0);
+            var userIsSwipingRightwards = (event.detail.dx > 0);
+
+            var thresholdWasCrossed = (Math.abs(event.detail.dx) / this.pageWidth()) > this.threshold;
+            this.setAnimationDuration(this.getAttribute('transitionDuration'), this);
+
+            if (thresholdWasCrossed){
+              if (userIsSwipingRightwards){
+                this.selected = Math.max(this.selected - 1, 0);
+              }
+              if (userIsSwipingLeftwards){
+                this.selected = Math.min(this.selected + 1, this.currentCount - 1);
+              }
+            } else {
+              this.moveToPage(this.selected, this);
+            }
+            break;
+        }
+      },
+      selectedChanged: function(newValue, oldValue){
+        this.fire('pageChange');
+        this.moveToPage(newValue);
+        var self = this;
+
+        if(oldValue !== newValue) {
+          window.setTimeout(function(){
+            self.resetScrollTop();
+          }, self.transitionDuration * 1000);
+        }
+
+        this.checkArrows();
+
+      },
+      resetScrollTop: function(){
+        if (this && this.currentPages.length > 0) {
+          var self = this;
+          window.setTimeout(function(){
+            self.currentPages[self.selected].scrollTop = 0;
+          }, self.transitionDuration * 5000);
+        }
+      },
+      moveToPage: function(pageNumber){
+        var position = (-pageNumber * this.pageWidth());
+        this.moveToPosition(position);
+      },
+      moveToPosition: function(position){
+        var transform = 'translateX(' + position.toString() + 'px)';
+        this.setTransform(transform);
+      },
+      getPositionArray: function(length){
+        var a = [];
+        for (var i = 0; i < length; i++){
+          a[i] = (i * 100);
+        }
+        return a;
+      },
+      resetAnimations: function(){
+        this.setTransition('', this);
+      },
+      setAnimationDuration: function(duration, element, easingFunction){
+        easingFunction = easingFunction || 'ease-out';
+        var transition = (isWebkit ? '-webkit-' : '') + 'transform ' + duration.toString() + 's ' + easingFunction;
+        this.setTransition(transition);
+      },
+      setTransition: function(transition){
+        if (isWebkit){
+          this.$.pagesContainer.style.webkitTransition = transition;
+        }else{
+          this.$.pagesContainer.style.transition = transition;
+        }
+      },
+      setTransform: function(transform){
+        if (isWebkit){
+          this.$.pagesContainer.style.webkitTransform = transform;
+        } else {
+          this.$.pagesContainer.style.transform = transform;
+        }
+      }
+    });
+
+  })();
+
+  </script>
+
+</dom-module>

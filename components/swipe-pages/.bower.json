@@ -1,0 +1,34 @@
+{
+  "name": "swipe-pages",
+  "keywords": [
+    "seed",
+    "polymer",
+    "web-components"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "main": "swipe-pages.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.0.0",
+    "iron-resizable-behavior": "PolymerElements/iron-resizable-behavior#~1.0.2"
+  },
+  "devDependencies": {
+    "test-fixture": "PolymerElements/test-fixture#^1.0.0"
+  },
+  "homepage": "https://github.com/ppark482/custom-polymer-swipe-pages",
+  "_release": "13b296395f",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "13b296395f4242ed986f9782fa17fe5cf9387c01"
+  },
+  "_source": "git://github.com/ppark482/custom-polymer-swipe-pages.git",
+  "_target": "master",
+  "_originalSource": "ppark482/custom-polymer-swipe-pages",
+  "_direct": true
+}

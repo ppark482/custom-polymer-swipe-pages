@@ -1,0 +1,36 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
+<link rel="import" href="../fontawesome-iconset/fa-all.html">
+
+<dom-module name="swipe-page-right-arrow">
+  <template>
+    <style>
+      :host {
+        @apply(--swipe-page-right-arrow);
+      }
+    </style>
+      <template is="dom-if" if="{{nextPage}}">
+        <iron-icon icon="fa:chevron-right" id="nextPage" on-click="goToNext"></iron-icon>
+      </template>
+  </template>
+
+  <script>
+    (function() {
+      Polymer({
+        is: 'swipe-page-right-arrow',
+        properties: {
+          nextPage: {
+            type: Boolean,
+            value: false,
+            notify: true,
+            reflectToAttribute: true
+          }
+        },
+        goToNext : function (e) {
+          this.fire('swipe-page-right-arrow-fire');
+        }
+      });
+    })()
+  </script>
+
+</dom-module>

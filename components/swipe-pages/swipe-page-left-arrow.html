@@ -1,0 +1,36 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
+<link rel="import" href="../fontawesome-iconset/fa-all.html">
+
+<dom-module name="swipe-page-left-arrow">
+  <template>
+    <style>
+      :host {
+        @apply(--swipe-page-left-arrow);
+      }
+    </style>
+      <template is="dom-if" if="{{previousPage}}">
+        <iron-icon icon="fa:chevron-left" id="previousPage" on-click="goToPrevious"></iron-icon>
+      </template>
+  </template>
+
+  <script>
+    (function() {
+      Polymer({
+        is: 'swipe-page-left-arrow',
+        properties: {
+          previousPage: {
+            type: Boolean,
+            value: false,
+            notify: true,
+            reflectToAttribute: true
+          }
+        },
+        goToPrevious : function () {
+          this.fire('swipe-page-left-arrow-fire');
+        }
+      });
+    })()
+  </script>
+
+</dom-module>
